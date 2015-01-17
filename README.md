@@ -4,7 +4,9 @@ Performes Highly Concurrent Web Requests, Publishes or Persists Response to Redi
 
 
 Features:
+
     Http client with concurrent requests
+    
         one connection per domain
         auto request frequency tuning or use constants
         use for highly concurrent multiple Get requests
@@ -12,6 +14,7 @@ Features:
         cli confugure and updates
 
 ToDo:
+
     AutoTune Network Params
 
 

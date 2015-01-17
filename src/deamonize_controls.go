@@ -1,7 +1,11 @@
 package main
 
-import "github.com/takama/daemon"
+import (
+	//"github.com/BurntSushi/toml"
+	"github.com/takama/daemon"
+)
 
+// service object acted upon by daemon lib
 type Service struct {
 	daemon.Daemon
 }

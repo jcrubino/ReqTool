@@ -14,12 +14,14 @@ type Result struct {
 
 // tuning commands to GoRoutine Gatling
 type Command struct {
-	Domain   []byte // tells Urlscanner the domain to work on
+	Domain   []byte // tells Urlscanner the domain for dedicated connection
 	GetUrls  []byte // redis key of all URLs to Get
 	PostUrls []byte // redis key of all URLs to Post to
-	Sleep    int    // length between goroutine execution
-	TimeOut  int    // http client timeout
+	Sleep    int    // milliseconds between goroutine execution
+	TimeOut  int    // milliseconds http client timeout
+	Pause    int    // milliseconds pause between request sets on one domain
 	Run      bool   // state of execution
+	Msg      []byte // use msgs for rpc
 }
 
 // Config for daemon
@@ -37,4 +39,4 @@ type Config struct {
 	UpdateInterval int
 }
 
-const FULLSTOP = Command{[]byte("*"), []byte(""), []byte(""), 1000, 1000, false}
+const FULLSTOP = Command{[]byte("*"), []byte(""), []byte(""), 10000, 10000, 10000, false, []byte("FULLSTOP")}

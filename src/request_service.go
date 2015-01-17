@@ -45,9 +45,10 @@ func URLScanner(results chan Result, command chan Command, setup Command) {
 	// tuneable params
 
 	domain := setup.Domain
-	getUrls := setup.GetUrls
-	postUrls := setup.PostUrls
+	getUrls := setup.GetUrls   // key in redis to get GET urls
+	postUrls := setup.PostUrls // key in redis to get POST urls
 	throttle := setup.Sleep
+	pause := setup.Pause
 	timeout := time.Duration(setup.TimeOut) * time.Millisecond
 
 	p, err := pool.NewPool("tcp", "127.0.0.1:6379", 25)
@@ -58,6 +59,9 @@ func URLScanner(results chan Result, command chan Command, setup Command) {
 	}
 
 	for {
+
+		// Pause per set of requests
+		time.Sleep(time.Millisecond * time.Duration(pause))
 		select {
 
 		case msg := <-command:
@@ -75,24 +79,23 @@ func URLScanner(results chan Result, command chan Command, setup Command) {
 			}
 		default:
 
-			// Throttle:  Change to AutoTune Function
-			time.Sleep(time.Millisecond * time.Duration(1))
-
 			var wg sync.WaitGroup
-			wg.Add(len(Urls))
+			wg.Add(len(getUrls))
 
-			for k, url := range urls {
-				// ToDo Throttle: Change to AutoTune Function
+			for k, url := range getUrls {
+
+				// throttle per goroutine
 				time.Sleep(time.Millisecond * time.Duration(throttle))
 
 				// select / case / match
 				// check for messages that might be to post data
-				// trade execution get priority over next goroutine
-				// reuses the same connection to server
+				// post execution get priority over next goroutine
 
-				go func(k string, url string, wg *sync.WaitGroup) {
+				go func(k string, url string, wg *sync.WaitGroup, headers map[string]string) {
 					req, err := http.NewRequest("GET", url, nil)
-					req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+					for k, v := range headers {
+						req.Header.Add(k, v)
+					}
 					resp, err := client.Do(req)
 					timeStamp := time.Now()
 					if err != nil {
@@ -119,4 +122,12 @@ func URLScanner(results chan Result, command chan Command, setup Command) {
 
 		}
 	}
+}
+
+// shutdown all requests
+func shutdown() {
+	control <- FULLSTOP
+	fmt.Println("Shutdown command sent")
+	close(results)
+	close(control)
 }

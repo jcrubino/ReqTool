@@ -11,7 +11,7 @@ var control = make(chan Command)
 
 func main() {
 
-	// dameon init
+	// daemon init
 	srv, err := daemon.New(name, description)
 	if err != nil {
 		fmt.Println("Error: ", err)

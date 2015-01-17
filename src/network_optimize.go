@@ -4,7 +4,8 @@ import (
 	"fmt"
 )
 
-// function to AutoADjust Network Requests
+// ToDo
+// function to Auto Adjust Network Requests
 // http.client TimeOut and throttle between goroutines
 func TuneRequests() {
 	var counter int = 0
